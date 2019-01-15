@@ -1,0 +1,5 @@
+label_next: suivant
+label_previous: précédent
+
+# penser à vider le cache pour voir les changements
+# php bin/console cache:clear

@@ -2,9 +2,13 @@
 
 namespace App\Repository;
 
+use Doctrine\ORM\Query;
 use App\Entity\Property;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use App\Entity\PropertySearch;
+use Doctrine\ORM\QueryBuilder;
+use App\Repository\PropertyRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
 /**
  * @method Property|null find($id, $lockMode = null, $lockVersion = null)
@@ -18,112 +22,49 @@ class PropertyRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Property::class);
     }
+        
+
     /**
      *
-     * @return Property[]
+     * @return Query
      */
-    public function findAllVisible(): array
+    public function findAllVisibleQuery(PropertySearch $search): Query
     {
-        return $this->createQueryBuilder('p')
-                    ->where('p.sold = false')
-                    ->getQuery()
-                    ->getResult()
-        ; 
+        $query = $this->findVisibleQuery();
+
+        if ($search->getMaxPrice()){
+            $query = $query
+                ->andWhere('p.price <= :maxprice')
+                ->setParameter('maxprice', $search->getMaxPrice());
+        }
+
+        if ($search->getMinSurface()){
+            $query = $query
+                ->andWhere('p.surface >= :minsurface')
+                ->setParameter('minsurface', $search->getMinSurface());
+        }
+        return $query->getQuery(); 
     }
      
     /**
      *
-     * @return Property[]
+     * @return Property
      */
     public function findLatest(): array
     {
-        return $this->createQueryBuilder('p')
-                    ->where('p.sold = false')
+        return $this->findVisibleQuery()
                     ->setMaxResults(4)
                     ->getQuery()
                     ->getResult()
         ; 
     }
 
- 
-
-
-
-    
-
-    // /**
-    //  *
-    //  * @return Property[]
-    //  */
-    // public function findAllVisible(): array
-    // {
-    //     return $this->findVisibleQuery()
-    //                 ->getQuery()
-    //                 ->getResult()
-    //     ; 
-    // }
-     
-    // /**
-    //  *
-    //  * @return Property[]
-    //  */
-    // public function findLatest(): array
-    // {
-    //     return $this->findVisibleQuery()
-    //                 ->setMaxResults(4)
-    //                 ->getQuery()
-    //                 ->getResult()
-    //     ; 
-    // }
-
-    // private function findVisibleQuery(): QueryBuilder
-    // {
-    //     return $this->createQueryBuilder('p')
-    //                 ->where('p.sold = false')
-    //     ;
-
-    // }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // /**
-    //  * @return Property[] Returns an array of Property objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    private function findVisibleQuery(): QueryBuilder
     {
         return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('p.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
+                    ->where('p.sold = false')
         ;
-    }
-    */
 
-    /*
-    public function findOneBySomeField($value): ?Property
-    {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
     }
-    */
+
 }
