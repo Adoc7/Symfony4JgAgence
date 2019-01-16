@@ -137,7 +137,7 @@ class Contact {
     */
     public function getProperty(): ?Property
     {
-        return $this->propertty;
+        return $this->property;
     }
 
     /**

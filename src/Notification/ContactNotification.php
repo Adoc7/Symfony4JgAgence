@@ -34,6 +34,6 @@ class ContactNotification{
             ->setBody($this->renderer->render('emails/contact.html.twig',[
                 'contact' => $contact
             ]), 'text/html');
-            $this->$mailer->send($message);       
+            $this->mailer->send($message);       
     }
 }
